@@ -10,6 +10,7 @@ import java.awt.event.*;
 import java.time.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 
 public class appGUI extends JFrame{
     // <editor-fold defaultstate="collapsed" desc="Private declarations">
@@ -108,7 +109,12 @@ public class appGUI extends JFrame{
     private JPanel pCreateList;
     private JPanel pCreateListName;
     private JPanel pCreateListDate;
+    private JPanel pCreateListDateMM;
+    private JPanel pCreateListDateDD;
+    private JPanel pCreateListDateYYYY;
     private JPanel pCreateListDateBoxes;
+    private JPanel pCreateListCreate;
+    private JPanel pCreateListGoBack;
     private JPanel pCreateListButtons;
     
     private JButton bCreateListCreate;
@@ -116,9 +122,9 @@ public class appGUI extends JFrame{
     
     private JTextField tfCreateListName;
     
-    private JComboBox<String> cbCreateListMM;
-    private JComboBox<String> cbCreateListDD;
-    private JComboBox<String> cbCreateListYYYY;
+    private JComboBox<String> cbCreateListDateMM;
+    private JComboBox<String> cbCreateListDateDD;
+    private JComboBox<String> cbCreateListDateYYYY;
     
     private JLabel lCreateListName; 
     private JLabel lCreateListNameParam;
@@ -482,59 +488,126 @@ public class appGUI extends JFrame{
         pCreateList = new JPanel();
         pCreateListName = new JPanel();
         pCreateListDate = new JPanel();
+        pCreateListDateMM = new JPanel();
+        pCreateListDateDD = new JPanel();
+        pCreateListDateYYYY = new JPanel();
         pCreateListDateBoxes = new JPanel();
+        pCreateListCreate = new JPanel();
+        pCreateListGoBack = new JPanel();
         pCreateListButtons = new JPanel();
 
         bCreateListCreate = makeButton("CREATE", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
         bCreateListGoBack = makeButton("GO BACK", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
 
-        tfCreateListName = new JTextField();
+        tfCreateListName = makeTextField();
 
-        cbCreateListMM = new JComboBox<>();
-        cbCreateListDD = new JComboBox<>();
-        cbCreateListYYYY = new JComboBox<>();
+        cbCreateListDateMM = makeDropDown();
+        cbCreateListDateDD = makeDropDown();
+        cbCreateListDateYYYY = makeDropDown();
 
-        lCreateListName = makeLabel("LIST NAME" + curUser.getFirstname(), MAIN_BLUE, new Font("League Spartan", Font.BOLD, 30));
-        lCreateListNameParam = makeLabel("(Max. 20 Characters)", MAIN_BLUE, new Font("Open Sans", Font.PLAIN, 12));
-        lCreateListDate = makeLabel("DATE TODAY" + curUser.getFirstname(), MAIN_BLUE, new Font("League Spartan", Font.BOLD, 30));
-        lCreateListDateMM = makeLabel("MM", MAIN_BLUE, new Font("Open Sans", Font.PLAIN, 14));
-        lCreateListDateDD = makeLabel("/ DD", MAIN_BLUE, new Font("Open Sans", Font.PLAIN, 14));
-        lCreateListDateYYYY = makeLabel("/ YYYY", MAIN_BLUE, new Font("Open Sans", Font.PLAIN, 14));
+        lCreateListName = makeLabel("LIST NAME", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 30));
+        lCreateListNameParam = makeLabel("(Max. 20 Characters)", MAIN_BLUE, new Font("Open Sans", Font.PLAIN, 18));
+        lCreateListDate = makeLabel("DATE TODAY", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 30));
+        lCreateListDateMM = makeLabel("M  M", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 12));
+        lCreateListDateDD = makeLabel("/ D  D", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 12));
+        lCreateListDateYYYY = makeLabel("/ Y  Y  Y  Y", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 12));
         
         lCreateListName.setHorizontalAlignment(SwingConstants.CENTER);
         lCreateListNameParam.setHorizontalAlignment(SwingConstants.CENTER);
+        lCreateListDate.setHorizontalAlignment(SwingConstants.CENTER);
         
         pCreateListName.setLayout(new GridLayout(3, 1));
+        pCreateListName.setBackground(Color.WHITE);
         pCreateListName.add(lCreateListName);
         pCreateListName.add(lCreateListNameParam);
         pCreateListName.add(tfCreateListName);
         
-        pCreateListDateBoxes.setLayout(new SpringLayout());
         
+        
+        LocalDate today = LocalDate.now();
         
         String[] mm = new String[12];
         String[] dd = new String[31];
-        String[] yyyy = new String[(LocalDate.now().getYear()-1900)];
+        String[] yyyy = new String[(today.getYear()-1900)];
         
         for (int i = 0; i < mm.length; i++) {
-            mm[i] = String.format("%02d", i+1);
+            mm[i] = String.format("%02d", i+1).replace("", "  ").trim();
         }
         
         for (int i = 0; i < dd.length; i++) {
-            dd[i] = String.format("%02d", i+1);
+            dd[i] = String.format("%02d", i+1).replace("", "  ").trim();
         }
         
         for (int i = 0; i < yyyy.length; i++) {
-            yyyy[i] = String.format("%04d", i+1901);
+            yyyy[i] = String.format("%04d", i+1901).replace("", "  ").trim();
         }
         
-        cbCreateListMM.setModel(new DefaultComboBoxModel<>(mm));
-        cbCreateListDD.setModel(new DefaultComboBoxModel<>(dd));
-        cbCreateListYYYY.setModel(new DefaultComboBoxModel<>(yyyy));
+        cbCreateListDateMM.setModel(new DefaultComboBoxModel<>(mm));
+        cbCreateListDateDD.setModel(new DefaultComboBoxModel<>(dd));
+        cbCreateListDateYYYY.setModel(new DefaultComboBoxModel<>(yyyy));
         
-   
+        cbCreateListDateMM.setSelectedItem(mm[today.getMonthValue()-1]);
+        cbCreateListDateDD.setSelectedItem(dd[today.getDayOfMonth()-1]);
+        cbCreateListDateYYYY.setSelectedItem(yyyy[today.getYear()-1901]);
+                
+        pCreateListDateMM.setLayout(new GridLayout(2, 1));
+        pCreateListDateDD.setLayout(new GridLayout(2, 1));
+        pCreateListDateYYYY.setLayout(new GridLayout(2, 1));
         
-        pCreateList.setLayout(new GridLayout(3, 1));
+        pCreateListDateMM.setBackground(Color.WHITE);
+        pCreateListDateDD.setBackground(Color.WHITE);
+        pCreateListDateYYYY.setBackground(Color.WHITE);
+        
+        pCreateListDateMM.add(lCreateListDateMM);
+        pCreateListDateMM.add(cbCreateListDateMM);
+        pCreateListDateDD.add(lCreateListDateDD);
+        pCreateListDateDD.add(cbCreateListDateDD);
+        pCreateListDateYYYY.add(lCreateListDateYYYY);
+        pCreateListDateYYYY.add(cbCreateListDateYYYY);
+        
+        pCreateListDateBoxes.setLayout(new FlowLayout(FlowLayout.CENTER ,10, 0));
+        pCreateListDateBoxes.setBackground(Color.WHITE);
+        pCreateListDateBoxes.add(pCreateListDateMM);
+        pCreateListDateBoxes.add(pCreateListDateDD);
+        pCreateListDateBoxes.add(pCreateListDateYYYY);
+        
+        pCreateListDate.setLayout(new GridLayout(2, 1));
+        pCreateListDate.setBackground(Color.WHITE);
+        pCreateListDate.add(lCreateListDate);
+        pCreateListDate.add(pCreateListDateBoxes);
+        
+        
+        bCreateListCreate.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                
+            }
+        });
+        bCreateListCreate.setPreferredSize(new Dimension(300, 50));
+        pCreateListCreate.setBackground(Color.WHITE);
+        pCreateListCreate.add(bCreateListCreate);
+        
+        bCreateListGoBack.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                
+            }
+        });
+        bCreateListGoBack.setPreferredSize(new Dimension(300, 50));
+        pCreateListGoBack.setBackground(Color.WHITE);
+        pCreateListGoBack.add(bCreateListGoBack);
+
+        pCreateListButtons.setLayout(new GridLayout(2, 1));
+        pCreateListButtons.setBackground(Color.WHITE);
+        pCreateListButtons.add(pCreateListCreate);
+        pCreateListButtons.add(pCreateListGoBack);
+        
+        pCreateList.setLayout(new GridLayout(3, 1, 15, 35));
+        pCreateList.setBorder(BorderFactory.createEmptyBorder(125, 50, 125, 50));
+        pCreateList.setBackground(Color.WHITE);
+        pCreateList.add(pCreateListName);
+        pCreateList.add(pCreateListDate);
+        pCreateList.add(pCreateListButtons);
+        
+        
         
         
         // </editor-fold>
@@ -569,7 +642,7 @@ public class appGUI extends JFrame{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(null);
-        getContentPane().add(pStart);
+        getContentPane().add(pCreateList);
         
         // File I/O
         
@@ -805,10 +878,17 @@ public class appGUI extends JFrame{
     }
     
     private static JComboBox makeDropDown() {
-        JComboBox dropDown = new JComboBox();
-        dropDown.setBorder(BorderFactory.createLineBorder(MAIN_BLACK, 2));
-        dropDown.setFont(new Font("Open Sans", Font.PLAIN, 10));
+        JComboBox cb = new JComboBox();
         
-        return dropDown;
+        cb.setBackground(Color.WHITE);
+        cb.setFocusable(false);
+        cb.setFont(new Font("Open Sans", Font.PLAIN, 12));
+        
+        return cb;
     }
+    
+    private class cbUI extends BasicComboBoxUI {
+        
+    }
+    
 }
