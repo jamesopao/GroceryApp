@@ -8,9 +8,11 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.*;
+import java.time.format.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.table.*;
+
 
 public class appGUI extends JFrame{
     // <editor-fold defaultstate="collapsed" desc="Private declarations">
@@ -134,6 +136,93 @@ public class appGUI extends JFrame{
     private JLabel lCreateListDateYYYY;
     
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Add Item Page">
+    private JPanel pAddItem;
+    private JPanel pAddItemBottom;
+    private JPanel pAddItemListDetails;
+    private JPanel pAddItemName;
+    private JPanel pAddItemQuantity;
+    private JPanel pAddItemPrice;
+    private JPanel pAddItemButtons;
+    private JPanel pAddItemAdd;
+    private JPanel pAddItemSeeList;
+    
+    private JButton bAddItemAdd;
+    private JButton bAddItemSeeList;
+    
+    private JTextField tfAddItemName;
+    private JTextField tfAddItemQuantity;
+    private JTextField tfAddItemPrice;
+    
+    private JLabel lAddItemListName;
+    private JLabel lAddItemListDate;
+    private JLabel lAddItemName;
+    private JLabel lAddItemNameParam;
+    private JLabel lAddItemQuantity;
+    private JLabel lAddItemQuantityParam;
+    private JLabel lAddItemPrice;
+    private JLabel lAddItemPriceParam;
+    
+    
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Preview Page">
+    private JPanel pPreviewList;
+    private JPanel pPreviewListBottom;
+    private JPanel pPreviewListDetails;
+    private JPanel pPreviewListDisplay;
+    private JPanel pPreviewListTotal;
+    private JPanel pPreviewListButtons;
+    private JPanel pPreviewListFinish;
+    private JPanel pPreviewListAddMore;
+    private JPanel pPreviewListTotalButtons;
+    
+    private JButton bPreviewListFinish;
+    private JButton bPreviewListAddMore;
+    
+    private JScrollPane spPreviewListDisplay;
+    private DefaultTableModel dtmPreviewListDisplay;
+    private JTable tPreviewListDisplay;
+    
+    private JLabel lPreviewListName;
+    private JLabel lPreviewListDate;
+    private JLabel lPreviewListTotal;
+    private JLabel lPreviewListTotalPrice;
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Finish List Page">
+
+    private JPanel pFinishedList;
+    private JPanel pFinishedListDetails;
+    private JPanel pFinishedListDisplay;
+    private JPanel pFinishedListTotal;
+    private JPanel pFinishedListButtons;
+    private JPanel pFinishedListCreateNew;
+    private JPanel pFinishedListHome;
+    
+    private JButton bFinishedListCreateNew;
+    private JButton bFinishedListHome;
+    
+    private JScrollPane spFinishedListDisplay;
+    private DefaultTableModel dtmFinishedListDisplay;
+    private JTable tFinishedListDisplay;
+    
+    private JLabel lFinishedListLogo;
+    private JLabel lFinishedListName;
+    private JLabel lFinishedListDate;
+    private JLabel lFinishedListTotal;
+    private JLabel lFinishedListTotalPrice;
+        
+        
+        // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Finish Page">
+    
+    // </editor-fold>
+    
     
     // <editor-fold defaultstate="collapsed" desc="History Page">
     private JPanel pHistory;
@@ -279,8 +368,7 @@ public class appGUI extends JFrame{
                     registerUser();
                     registerSuccessful = true;
                 } catch (IllegalArgumentException e) {
-                    JOptionPane.showMessageDialog(null, "An IllegalArgumentExceptionCaught: " + e.getMessage() + ". Please Try again.", 
-                                              "Error Screen", JOptionPane.ERROR_MESSAGE);
+                    handleError(e);
                 }
                 
                 if (registerSuccessful) {
@@ -374,17 +462,14 @@ public class appGUI extends JFrame{
         bLoginLogin = makeButton("LOG IN", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
         bLoginGoBack = makeButton("GO BACK", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
         
-        tfLoginUName = new JTextField();
-        pfLoginPassword = new JPasswordField();
+        tfLoginUName = makeTextField();
+        pfLoginPassword = makePasswordField();
 
         lLoginTitle = makeLabel("LOG IN", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 40));;
         lLoginUName = makeLabel("Username", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 18));
         lLoginPassword = makeLabel("Password", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 18));
         
         lLoginTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        tfLoginUName.setBorder(BorderFactory.createLineBorder(MAIN_BLACK, 3));
-        pfLoginPassword.setBorder(BorderFactory.createLineBorder(MAIN_BLACK, 3));
         
         pLoginUName.setLayout(new GridLayout(2, 1));
         pLoginUName.setBackground(Color.WHITE);
@@ -407,8 +492,7 @@ public class appGUI extends JFrame{
                     appGUI.this.revalidate();
                     appGUI.this.repaint();
                 } catch (IllegalArgumentException e){
-                    JOptionPane.showMessageDialog(null, e.getMessage() + ". Please Try again.", 
-                                              "Error Screen", JOptionPane.ERROR_MESSAGE);
+                    handleError(e);
                 }
             }
         });
@@ -455,6 +539,22 @@ public class appGUI extends JFrame{
         
         bWelcomeStart.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                appGUI.this.remove(pWelcome);
+                
+                if (curUser.hasUnfinishedList()) {
+                    displayShoppingList(dtmPreviewListDisplay, curUser.getUnfinishedList(), lPreviewListTotalPrice); 
+                
+                    appGUI.this.remove(pWelcome);
+                    appGUI.this.add(pPreviewList);
+                    appGUI.this.revalidate();
+                    appGUI.this.repaint();
+                } else {
+                    appGUI.this.add(pCreateList);
+                }
+                
+                
+                appGUI.this.revalidate();
+                appGUI.this.repaint();
                 
             }
         });
@@ -483,7 +583,7 @@ public class appGUI extends JFrame{
         
         // </editor-fold> 
         
-        // <editor-fold defaultstate="collapsed" desc="Create Page">
+        // <editor-fold defaultstate="collapsed" desc="Create List Page">
         
         pCreateList = new JPanel();
         pCreateListName = new JPanel();
@@ -579,7 +679,21 @@ public class appGUI extends JFrame{
         
         bCreateListCreate.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                
+                try {
+                    createList();
+                    
+                    lAddItemListName.setText(curUser.getUnfinishedList().getName());
+                    lAddItemListDate.setText(curUser.getUnfinishedList().getDate()
+                                                                        .format(DateTimeFormatter
+                                                                        .ofPattern("MM/dd/uuuu")));
+                    
+                    appGUI.this.remove(pCreateList);
+                    appGUI.this.add(pAddItem);
+                    appGUI.this.revalidate();
+                    appGUI.this.repaint();
+                } catch (IllegalArgumentException e) {
+                    handleError(e);
+                }
             }
         });
         bCreateListCreate.setPreferredSize(new Dimension(300, 50));
@@ -588,7 +702,10 @@ public class appGUI extends JFrame{
         
         bCreateListGoBack.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                
+                appGUI.this.remove(pCreateList);
+                appGUI.this.add(pWelcome);
+                appGUI.this.revalidate();
+                appGUI.this.repaint();
             }
         });
         bCreateListGoBack.setPreferredSize(new Dimension(300, 50));
@@ -614,20 +731,303 @@ public class appGUI extends JFrame{
         
         // <editor-fold defaultstate="collapsed" desc="Add Item Page">
         
+        pAddItem = new JPanel();
+        pAddItemBottom = new JPanel();
+        pAddItemListDetails = new JPanel();
+        pAddItemName = new JPanel();
+        pAddItemQuantity = new JPanel();
+        pAddItemPrice = new JPanel();
+        pAddItemButtons = new JPanel();
+        pAddItemAdd = new JPanel();
+        pAddItemSeeList = new JPanel();
+
+        bAddItemAdd = makeButton("ADD", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
+        bAddItemSeeList = makeButton("SEE LIST", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
+
+        tfAddItemName = makeTextField();
+        tfAddItemQuantity = makeTextField();
+        tfAddItemPrice = makeTextField();
+
+        lAddItemListName = makeLabel("NULL NAME", Color.WHITE, new Font("League Spartan", Font.BOLD, 30));
+        lAddItemListDate = makeLabel("NULL DATE", Color.WHITE, new Font("Open Sans", Font.BOLD, 12));
+        lAddItemName = makeLabel("PRODUCT NAME", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 30));
+        lAddItemNameParam = makeLabel("( M a x .   2 0   c h a r a c t e r s )", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 12));
+        lAddItemQuantity = makeLabel("QUANTITY", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 30));
+        lAddItemQuantityParam = makeLabel("E x .  1 0", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 12));
+        lAddItemPrice = makeLabel("PRICE", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 30));
+        lAddItemPriceParam = makeLabel("E x .  1 2 3 4 . 5 6", MAIN_BLUE, new Font("Open Sans", Font.BOLD, 12));
+        
+        lAddItemListName.setHorizontalAlignment(SwingConstants.CENTER);
+        lAddItemListDate.setHorizontalAlignment(SwingConstants.CENTER);
+        lAddItemName.setHorizontalAlignment(SwingConstants.CENTER);
+        lAddItemNameParam.setHorizontalAlignment(SwingConstants.CENTER);
+        lAddItemQuantity.setHorizontalAlignment(SwingConstants.CENTER);
+        lAddItemQuantityParam.setHorizontalAlignment(SwingConstants.CENTER);
+        lAddItemPrice.setHorizontalAlignment(SwingConstants.CENTER);
+        lAddItemPriceParam.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        pAddItemListDetails.setLayout(new GridLayout(2, 1));
+        pAddItemListDetails.setBorder(BorderFactory.createEmptyBorder(35, 50, 0, 50));
+        pAddItemListDetails.setPreferredSize(new Dimension(350, 110));
+        pAddItemListDetails.setBackground(MAIN_GREEN);
+        pAddItemListDetails.add(lAddItemListName);
+        pAddItemListDetails.add(lAddItemListDate);
+        
+        pAddItemName.setLayout(new GridLayout(3, 1));
+        pAddItemName.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
+        pAddItemName.setBackground(Color.WHITE);
+        pAddItemName.add(lAddItemName);
+        pAddItemName.add(lAddItemNameParam);
+        pAddItemName.add(tfAddItemName);
+        
+        pAddItemQuantity.setLayout(new GridLayout(3, 1));
+        pAddItemQuantity.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
+        pAddItemQuantity.setBackground(Color.WHITE);
+        pAddItemQuantity.add(lAddItemQuantity);
+        pAddItemQuantity.add(lAddItemQuantityParam);
+        pAddItemQuantity.add(tfAddItemQuantity);
+        
+        pAddItemPrice.setLayout(new GridLayout(3, 1));
+        pAddItemPrice.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
+        pAddItemPrice.setBackground(Color.WHITE);
+        pAddItemPrice.add(lAddItemPrice);
+        pAddItemPrice.add(lAddItemPriceParam);
+        pAddItemPrice.add(tfAddItemPrice);
+        
+        bAddItemAdd.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                try {
+                    addItemToUnfinishedList();
+                    
+                    displayShoppingList(dtmPreviewListDisplay, curUser.getUnfinishedList(), lPreviewListTotalPrice);
+
+                    appGUI.this.remove(pAddItem);
+                    appGUI.this.add(pPreviewList);
+                    appGUI.this.revalidate();
+                    appGUI.this.repaint();
+                } catch (IllegalArgumentException e) {
+                    handleError(e);
+                }
+            }
+        });
+        bAddItemAdd.setPreferredSize(new Dimension(300, 50));
+        pAddItemAdd.setBackground(Color.WHITE);
+        pAddItemAdd.add(bAddItemAdd);
         
         
+        bAddItemSeeList.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                displayShoppingList(dtmPreviewListDisplay, curUser.getUnfinishedList(), lPreviewListTotalPrice); 
+                
+                appGUI.this.remove(pAddItem);
+                appGUI.this.add(pPreviewList);
+                appGUI.this.revalidate();
+                appGUI.this.repaint();
+            }
+        });
+        bAddItemSeeList.setPreferredSize(new Dimension(300, 50));
+        pAddItemSeeList.setBackground(Color.WHITE);
+        pAddItemSeeList.add(bAddItemSeeList);
+        
+        pAddItemButtons.setLayout(new GridLayout(2, 1, 15, 15));
+        pAddItemButtons.setBackground(Color.WHITE);
+        pAddItemButtons.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
+        pAddItemButtons.add(bAddItemAdd);
+        pAddItemButtons.add(bAddItemSeeList);
+        
+        pAddItemBottom.setLayout(new GridLayout(4, 1, 20, 20));
+        pAddItemBottom.setBorder(BorderFactory.createEmptyBorder(35, 0, 0, 0));
+        pAddItemBottom.setBackground(Color.WHITE);
+        pAddItemBottom.add(pAddItemName);
+        pAddItemBottom.add(pAddItemQuantity);
+        pAddItemBottom.add(pAddItemPrice);
+        pAddItemBottom.add(pAddItemButtons);
+        
+        pAddItem.setLayout(new BoxLayout(pAddItem, BoxLayout.Y_AXIS));
+        pAddItem.setBackground(Color.WHITE);
+        pAddItem.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
+        pAddItem.add(pAddItemListDetails);
+        pAddItem.add(pAddItemBottom);
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc="Preview List Page">
+        pPreviewList = new JPanel();
+        pPreviewListBottom = new JPanel();
+        pPreviewListDetails = new JPanel();
+        pPreviewListDisplay = new JPanel();
+        pPreviewListTotal = new JPanel();
+        pPreviewListButtons = new JPanel();
+        pPreviewListFinish = new JPanel();
+        pPreviewListAddMore = new JPanel();
+        pPreviewListTotalButtons = new JPanel();
+
+        bPreviewListFinish = makeButton("FINISH", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
+        bPreviewListAddMore = makeButton("ADD MORE", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));
+        
+        String[] header = {"Product", "X" , "Q", "Price"};
+        dtmPreviewListDisplay = new DefaultTableModel(header, 0);
+        tPreviewListDisplay = makeTable(dtmPreviewListDisplay);
+        spPreviewListDisplay = new JScrollPane(tPreviewListDisplay);
+        spPreviewListDisplay.setBackground(Color.WHITE);
+
+        lPreviewListName = makeLabel("NULL NAME", Color.WHITE, new Font("League Spartan", Font.BOLD, 30));
+        lPreviewListDate = makeLabel("NULL DATE ", Color.WHITE, new Font("Open Sans", Font.BOLD, 12));
+        lPreviewListTotal = makeLabel("TOTAL PRICE:", MAIN_BLACK, new Font("League Spartan", Font.BOLD, 18));
+        lPreviewListTotalPrice = makeLabel("PHP NULL", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 40));
+        
+        lPreviewListName.setHorizontalAlignment(SwingConstants.CENTER);
+        lPreviewListDate.setHorizontalAlignment(SwingConstants.CENTER);
+        lPreviewListTotal.setHorizontalAlignment(SwingConstants.CENTER);
+        lPreviewListTotalPrice.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        pPreviewListDetails.setLayout(new GridLayout(2, 1));
+        pPreviewListDetails.setBorder(BorderFactory.createEmptyBorder(35, 50, 0, 50));
+        pPreviewListDetails.setPreferredSize(new Dimension(350, 110));
+        pPreviewListDetails.setBackground(MAIN_GREEN);
+        pPreviewListDetails.add(lPreviewListName);
+        pPreviewListDetails.add(lPreviewListDate);
+        
+        pPreviewListDisplay.setLayout(new GridLayout(1, 1));
+        pPreviewListDisplay.setBorder(BorderFactory.createEmptyBorder(15, 50, 0, 50));
+        pPreviewListDisplay.setBackground(Color.WHITE);
+        pPreviewListDisplay.add(spPreviewListDisplay);
+        
+        pPreviewListTotal.setLayout(new GridLayout(2, 1, 15, 15));
+        pPreviewListTotal.setBackground(Color.WHITE);
+        pPreviewListTotal.add(lPreviewListTotal);
+        pPreviewListTotal.add(lPreviewListTotalPrice);
+        
+        bPreviewListFinish.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                double total = Double.parseDouble(lPreviewListTotalPrice.getText().substring(4));
+                String finishedListName = curUser.getUnfinishedList().toString() + "-" + total + ".csv";
+                finishList(total);
+                curUser.refreshHistory();
+                
+                displayFinishedList(dtmFinishedListDisplay, finishedListName, lFinishedListTotalPrice);
+                
+                appGUI.this.remove(pPreviewList);
+                appGUI.this.add(pFinishedList);
+                appGUI.this.revalidate();
+                appGUI.this.repaint();
+            }
+        });
+        pPreviewListFinish.setBackground(Color.WHITE);
+        pPreviewListFinish.add(bPreviewListFinish);
+        
+        bPreviewListAddMore.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+
+                appGUI.this.remove(pPreviewList);
+                appGUI.this.add(pAddItem);
+                appGUI.this.revalidate();
+                appGUI.this.repaint();
+            }
+        });
+        pPreviewListAddMore.setBackground(Color.WHITE);
+        pPreviewListAddMore.add(bPreviewListAddMore);
+        
+        pPreviewListButtons.setLayout(new GridLayout(2, 1, 15, 15));
+        pPreviewListButtons.setBackground(Color.WHITE);
+        pPreviewListButtons.add(pPreviewListFinish);
+        pPreviewListButtons.add(pPreviewListAddMore);
+
+        pPreviewListTotalButtons.setLayout(new GridLayout(2, 1, 15, 15));
+        pPreviewListTotalButtons.setBackground(Color.WHITE);
+        pPreviewListTotalButtons.add(pPreviewListTotal);
+        pPreviewListTotalButtons.add(pPreviewListButtons);
+        
+        pPreviewListBottom.setLayout(new GridLayout(2,1,15,15));
+        pPreviewListBottom.setBackground(Color.WHITE);
+        pPreviewListBottom.add(pPreviewListDisplay);
+        pPreviewListBottom.add(pPreviewListTotalButtons);
         
         
-        
+        pPreviewList.setLayout(new BoxLayout(pPreviewList, BoxLayout.Y_AXIS));
+        pPreviewList.setBackground(Color.WHITE);
+        pPreviewList.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
+        pPreviewList.add(pPreviewListDetails);
+        pPreviewList.add(pPreviewListBottom);
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc="Finish List Page">
         
+        pFinishedList = new JPanel();
+        pFinishedListDetails = new JPanel();
+        pFinishedListDisplay = new JPanel();
+        pFinishedListTotal = new JPanel();
+        pFinishedListButtons = new JPanel();
+        pFinishedListCreateNew = new JPanel();
+        pFinishedListHome = new JPanel();
+
+        bFinishedListCreateNew = makeButton("CREATE NEW", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));;
+        bFinishedListHome = makeButton("HOME", MAIN_GREEN, Color.WHITE, new Font("Open Sans", Font.BOLD, 20));;
         
+        dtmFinishedListDisplay = new DefaultTableModel(header, 0);
+        tFinishedListDisplay = makeTable(dtmFinishedListDisplay);
+        spFinishedListDisplay = new JScrollPane(tFinishedListDisplay);
+        spFinishedListDisplay.setBackground(Color.WHITE);
         
+        lFinishedListLogo = new JLabel();
+        lFinishedListName = makeLabel("NULL NAME", MAIN_GREEN, new Font("League Spartan", Font.BOLD, 30));
+        lFinishedListDate = makeLabel("NULL DATE ", MAIN_BLACK, new Font("Open Sans", Font.BOLD, 12));
+        lFinishedListTotal = makeLabel("TOTAL PRICE:", MAIN_BLACK, new Font("League Spartan", Font.BOLD, 18));
+        lFinishedListTotalPrice = makeLabel("PHP NULL", MAIN_BLUE, new Font("League Spartan", Font.BOLD, 40));
+        
+        lFinishedListLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lFinishedListName.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lFinishedListDate.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lFinishedListTotal.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lFinishedListTotalPrice.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        lFinishedListLogo.setIcon(new ImageIcon(image.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH)));
+        
+        pFinishedListDetails.setLayout(new BoxLayout(pFinishedListDetails, BoxLayout.Y_AXIS));
+        pFinishedListDetails.setBackground(Color.WHITE);
+        pFinishedListDetails.setBorder(BorderFactory.createEmptyBorder(50, 50, 0 ,50));
+        pFinishedListDetails.add(lFinishedListLogo);
+        pFinishedListDetails.add(lFinishedListName);
+        pFinishedListDetails.add(lFinishedListDate);
+        
+        pFinishedListDisplay.setLayout(new GridLayout(1, 1));
+        pFinishedListDisplay.setBorder(BorderFactory.createEmptyBorder(15, 50, 0, 50));
+        pFinishedListDisplay.setBackground(Color.WHITE);
+        pFinishedListDisplay.add(spFinishedListDisplay);
+        
+        pFinishedListTotal.setLayout(new BoxLayout(pFinishedListTotal, BoxLayout.Y_AXIS));
+        pFinishedListTotal.setBorder(BorderFactory.createEmptyBorder(15, 50, 0, 50));
+        pFinishedListTotal.setBackground(Color.WHITE);
+        pFinishedListTotal.add(lFinishedListTotal);
+        pFinishedListTotal.add(lFinishedListTotalPrice);
+        
+        bFinishedListCreateNew.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+
+            }
+        });
+        pFinishedListCreateNew.setBackground(Color.WHITE);
+        pFinishedListCreateNew.add(bFinishedListCreateNew);
+        
+        bFinishedListHome.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                
+            }
+        });
+        pFinishedListHome.setBackground(Color.WHITE);
+        pFinishedListHome.add(bFinishedListHome);
+        
+        pFinishedListButtons.setLayout(new GridLayout(2, 1, 15, 15 ));
+        pFinishedListButtons.setBackground(Color.WHITE);
+        pFinishedListButtons.setBorder(BorderFactory.createEmptyBorder(35, 50, 50, 50));
+        pFinishedListButtons.add(bFinishedListCreateNew);
+        pFinishedListButtons.add(bFinishedListHome);
+        
+        pFinishedList.setLayout(new BoxLayout(pFinishedList, BoxLayout.Y_AXIS));
+        pFinishedList.setBackground(Color.WHITE);
+        pFinishedList.add(pFinishedListDetails);
+        pFinishedList.add(pFinishedListDisplay);
+        pFinishedList.add(pFinishedListTotal);
+        pFinishedList.add(pFinishedListButtons);
         // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc="History Page">
@@ -642,7 +1042,7 @@ public class appGUI extends JFrame{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(null);
-        getContentPane().add(pCreateList);
+        getContentPane().add(pStart);
         
         // File I/O
         
@@ -654,7 +1054,7 @@ public class appGUI extends JFrame{
         setVisible(true);
     }
     
-    // Helper functions
+    // <editor-fold defaultstate="collapsed" desc="Helper Functions">
     private void login() throws IllegalArgumentException {
         String username = tfLoginUName.getText();
         String password = new String(pfLoginPassword.getPassword());
@@ -671,7 +1071,7 @@ public class appGUI extends JFrame{
         
     }
     
-    private void registerUser() throws IllegalArgumentException{
+    private void registerUser() throws IllegalArgumentException {
         String firstname = "";
         String username = "";
         String password = "";
@@ -766,6 +1166,8 @@ public class appGUI extends JFrame{
         try {
             File userDr = new File(userDataDr);
             userDr.mkdir();
+            File userHistoryDr = new File(userDataDr + "\\history");
+            userHistoryDr.mkdir();
             
             credentialsMap.put(username, password);
             FileWriter fw = new FileWriter(logCred, true);
@@ -775,6 +1177,192 @@ public class appGUI extends JFrame{
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+    
+    private void createList() throws IllegalArgumentException {
+        String name = tfCreateListName.getText();
+        String yyyy = ((String) cbCreateListDateYYYY.getSelectedItem()).replaceAll(" ", "");
+        String mm = ((String) cbCreateListDateMM.getSelectedItem()).replaceAll(" ", "");
+        String dd = ((String) cbCreateListDateDD.getSelectedItem()).replaceAll(" ", "");
+        LocalDate date;
+        // <editor-fold defaultstate="collapsed" desc="Info Checking">
+        // Name Validation
+        if (name.length() > 10) {
+            throw new IllegalArgumentException("List Name exceeds character limit");
+        } else if (name.replaceAll(" ", "").length() == 0) {
+            throw new IllegalArgumentException("List Name Field is empty");
+        }
+        
+        // Date Validation
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("MMdduuuu")
+                                                .withResolverStyle(ResolverStyle.STRICT);
+        try {
+            date = LocalDate.parse(mm+dd+yyyy, df);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid Date");
+        }
+        
+        date = LocalDate.parse(mm+dd+yyyy, df);
+        if (date.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Date is in the Future");
+        }
+        // </editor-fold>
+        
+        ShoppingList list = new ShoppingList(name, date, new ArrayList<Item>());
+        
+        File csvFile = new File("csv\\" + curUser.getUsername() + "\\" + list.toString() + ".csv");
+        try {
+            csvFile.createNewFile();
+            FileWriter fw = new FileWriter(csvFile);
+            
+            for (Item i : list.getList()) {
+                fw.write(i.getName() + "," +
+                         i.getQuantity() + "," +
+                         i.getPrice() + "\n");
+            }
+            
+            fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void addItemToUnfinishedList() throws IllegalArgumentException {
+        String name = tfAddItemName.getText();
+        int quantity = 0;
+        double price = 0;
+        
+        String quantityStr = tfAddItemQuantity.getText();
+        String priceStr = tfAddItemPrice.getText();
+        
+        // <editor-fold defaultstate="collapsed" desc="Info Checking">
+        
+        // Name Validation
+        if (name.length() == 0) {
+            throw new IllegalArgumentException("Item Name field is empty");
+        }
+        
+        if (name.length() > 20) {
+            throw new IllegalArgumentException("Item Name exceeds character limit");
+        }
+        
+        // Quantity Validation
+        if (quantityStr.length() == 0) {
+            throw new IllegalArgumentException("Item Quantity field is empty");
+        }
+        
+        try {
+            quantity = Integer.parseInt(quantityStr);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid Quantity");
+        }
+        
+        // Price Validation
+        if (priceStr.length() == 0) {
+            throw new IllegalArgumentException("Item Price field is empty");
+        }
+        
+        try {
+            price = Double.parseDouble(priceStr);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid Price");
+        }
+        
+        // </editor-fold>
+        
+        // Clear fields after removing;
+        tfAddItemName.setText("");
+        tfAddItemQuantity.setText("");
+        tfAddItemPrice.setText("");
+        
+        curUser.addItemToUnfinishedList(new Item(name, quantity, price));
+    }
+    
+    private void handleError(IllegalArgumentException e) {
+        JOptionPane.showMessageDialog(null, "An IllegalArgumentExceptionCaught: " + e.getMessage() + ". Please Try again.", 
+                                              "Error Screen", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private void displayShoppingList(DefaultTableModel model, ShoppingList list, JLabel price) {
+        for (int i = model.getRowCount()-1; i >= 0; i--) {
+            model.removeRow(i);
+        }
+        
+        int i = 1;
+        
+        for (Item item : list.getList()) {
+            Object[] row = item.toString().split("-");
+            row[0] = i++ + " " + ((String)row[0]);
+            
+            model.addRow(row);
+        }
+        
+        lPreviewListName.setText(curUser.getUnfinishedList().getName());
+        lPreviewListDate.setText(curUser.getUnfinishedList().getDate()
+                                                            .format(DateTimeFormatter
+                                                            .ofPattern("MM/dd/uuuu")));
+        
+        price.setText(String.format("PHP %1.2f", list.getTotal()));
+        
+    }
+    
+    private void finishList(double total) {
+        String userDataDr = System.getProperty("user.dir") + "\\csv\\" + curUser.getUsername();
+        File[] files = (new File(userDataDr)).listFiles(File::isFile);  
+        System.out.println(files.length + " " + userDataDr);
+        for (File file : files) {
+            String name = file.getName();
+            
+            if (name.substring(name.length()-4).equals(".csv")) {
+                File finished = new File(userDataDr + "\\history\\" + 
+                                                    name.substring(0, name.length()-4) + 
+                                                    "-" + total + ".csv");
+                
+                try {
+                    BufferedReader bf = new BufferedReader(new FileReader(file));
+                    FileWriter fw = new FileWriter(finished);
+                    String str;
+                    while ((str = bf.readLine()) != null) {
+                        fw.write(str + "\n");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
+                
+            }
+        }
+        
+        
+    }
+    
+    private void displayFinishedList(DefaultTableModel model, String fileName, JLabel price) {
+        ShoppingList list = new ShoppingList();
+        
+        for (int i = model.getRowCount()-1; i >= 0; i--) {
+            model.removeRow(i);
+        }
+        
+        for (ShoppingList sp : curUser.getHistory()) {
+            if ((list.toString() + "-" + list.getTotal() + ".csv").equals(fileName)) {
+                list = sp;
+            }
+        }
+        
+        for (Item item : list.getList()) {
+            System.out.println(item);
+            Object[] row = item.toString().split("-");
+            
+            model.addRow(row);
+        }
+        
+        price.setText(String.format("PHP %1.2f", list.getTotal()));
+        lFinishedListName.setText(list.getName());
+        lFinishedListDate.setText(list.getDate()
+                         .format(DateTimeFormatter
+                         .ofPattern("MM/dd/uuuu")));
+        
     }
     
     private HashMap<String, String> retrieveCredentials() {
@@ -825,9 +1413,13 @@ public class appGUI extends JFrame{
         }
         
         return new User(firstname, username);
-    }
+    } 
     
-    // GUI Builder Functions
+    // </editor-fold>
+    
+    
+    
+    // <editor-fold defaultstate="collapsed" desc="GUI Builder Functions"> 
     private static JButton makeButton(String text, Color bg, Color fg, Font font) {
         JButton button = new JButton(text);
         button.setFont(font);
@@ -887,8 +1479,33 @@ public class appGUI extends JFrame{
         return cb;
     }
     
-    private class cbUI extends BasicComboBoxUI {
+    private static JTable makeTable(DefaultTableModel model) {
         
+        JTable table = new JTable(model) {
+            @Override
+            public Class<?> getColumnClass(int column) {
+                return getValueAt(0, column).getClass();
+            }
+        };
+        
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setFont(new Font("Open Sans", Font.BOLD, 8));
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        table.setDefaultRenderer(String.class, centerRenderer);
+        
+        table.setBackground(Color.WHITE);
+        table.setShowGrid(false);
+        
+        TableColumnModel cm = table.getColumnModel();
+        cm.getColumn(0).setPreferredWidth(150);
+        cm.getColumn(1).setPreferredWidth(50);
+        cm.getColumn(2).setPreferredWidth(125);
+        cm.getColumn(3).setPreferredWidth(125);
+
+        
+        return table;    
     }
+    // </editor-fold>
+  
     
 }

@@ -54,6 +54,10 @@ public class Item {
     public double getTotal() {
         return quantity * price;
     }
+    
+    public String toString(){
+        return name + "-X-" + quantity + "(PHP " + price + ")-" + "PHP " + getTotal(); 
+    }
 }
 
 

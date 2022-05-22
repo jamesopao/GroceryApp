@@ -16,6 +16,7 @@ public class ShoppingList {
     private String name;
     private LocalDate date;
     private ArrayList<Item> list;
+    private double total;
     
     public ShoppingList() {
         
@@ -25,6 +26,14 @@ public class ShoppingList {
         this.name = name;
         this.date = date;
         this.list = list;
+        
+        System.out.println(name);
+        System.out.println(date);
+        System.out.println(list);
+        
+        for (Item item : list) {
+            this.total += item.getTotal();
+        }
     }
     
     public void setName(String name) {
@@ -49,6 +58,20 @@ public class ShoppingList {
     
     public ArrayList<Item> getList() {
         return list;
+    }
+    
+    public double getTotal() {
+        return total;
+    }
+    
+    public void addItem (Item item) {
+        list.add(item);
+        total += item.getTotal();
+    }
+    
+    @Override
+    public String toString() {
+        return name + "-" + date.toString().replaceAll("-", "");
     }
             
 }
