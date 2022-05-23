@@ -27,10 +27,6 @@ public class ShoppingList {
         this.date = date;
         this.list = list;
         
-        System.out.println(name);
-        System.out.println(date);
-        System.out.println(list);
-        
         for (Item item : list) {
             this.total += item.getTotal();
         }

@@ -7,10 +7,12 @@
  *
  * @author james
  */
-public class Main {
+public class GroceryApp {
     public static void main(String[] args) {
         System.out.println();
-        appGUI log = new appGUI();
+        AppGUI log = new AppGUI();
         log.run();
+        // Test test = new Test();
+        // test.run();
     }
 }

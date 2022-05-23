@@ -69,8 +69,13 @@ public class User {
         history.add(list);
     }
     
-    public void refreshHistory() {
+    public void removeList(ShoppingList list) {
+        history.remove(list);
+    }
+    
+    public void refreshUser() {
         history = retrieveHistory();
+        unfinishedList =retrieveUnfinishedList();
     }
     
     public boolean hasUnfinishedList() {
@@ -90,7 +95,7 @@ public class User {
         String[] fileName = file.getName().split("[-.]");
         String listName = fileName[0];
         String listDateUnf = fileName[1];
-        
+
         DateTimeFormatter df = DateTimeFormatter.ofPattern("uuuuMMdd")
                                                 .withResolverStyle(ResolverStyle.STRICT); 
         LocalDate listDate = LocalDate.parse(listDateUnf, df);
@@ -104,13 +109,15 @@ public class User {
                 String name = itemStr[0];
                 int quantity = Integer.parseInt(itemStr[1]);
                 double price = Double.parseDouble(itemStr[2]);
-                
+
                 list.add(new Item(name, quantity, price));
             }
+            
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return new ShoppingList(listName ,listDate ,list);
     }
     
